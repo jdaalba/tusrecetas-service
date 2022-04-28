@@ -1,0 +1,4 @@
+FROM neo4j:3.5.32-community
+ENV NEO4J_AUTH=neo4j/secret
+EXPOSE 7474
+EXPOSE 7687
