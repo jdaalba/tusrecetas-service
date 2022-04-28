@@ -19,7 +19,7 @@ public class RecipeServiceImpl implements RecipeService {
     final var ingredients = ingredientRepository
         .findAllById(recipe.getIngredients().stream().map(Ingredient::getId).toList());
 
-    if (ingredients.isEmpty()) {
+    if (recipe.getIngredients().size() != ingredients.size()) {
       throw new RuntimeException("some ingredients were not found");
     }
 
