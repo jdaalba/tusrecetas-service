@@ -7,14 +7,14 @@ import java.util.UUID;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 
-public interface RecipeRepository extends Neo4jRepository<Recipe, UUID> {
+public interface RecipeRepository extends Neo4jRepository<Recipe, Long> {
 
-  @Query("WITH $uuids as uuids"
+  @Query("WITH $ids as ids"
       + " MATCH (i: Ingredient)"
-      + " WHERE i.id IN uuids"
+      + " WHERE i.id IN ids"
       + " WITH collect(i) AS ingredients"
       + " MATCH (r:Recipe)"
       + " WHERE ALL (i IN ingredients WHERE (i)<-[:MADE_OF]-(r))"
       + " RETURN r")
-  Set<Recipe> findAllByIngredientsId(List<UUID> uuids);
+  Set<Recipe> findAllByIngredientsId(List<UUID> ids);
 }

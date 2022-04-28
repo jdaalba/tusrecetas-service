@@ -15,7 +15,6 @@ import com.jdaalba.tusrecetasservice.repository.IngredientRepository;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Function;
 import javax.servlet.ServletException;
 import lombok.RequiredArgsConstructor;
@@ -37,12 +36,12 @@ public class IngredientRoutingFunctionConfig {
 
   @Bean
   public RouterFunction<ServerResponse> getIngredient() {
-    final var url = "/ingredients/{uuid}";
+    final var url = "/ingredients/{id}";
     return route(
         GET(url).or(DELETE(url)),
         request -> {
           log.info("Incoming request [{}]", request);
-          return repository.findById(UUID.fromString(request.pathVariable("uuid")))
+          return repository.findById(Long.parseLong(request.pathVariable("id")))
               .map(handleIdRequest(request))
               .orElse(notFound().build());
         }

@@ -7,12 +7,14 @@ import static org.springframework.web.servlet.function.ServerResponse.created;
 import static org.springframework.web.servlet.function.ServerResponse.ok;
 
 import com.jdaalba.tusrecetasservice.dto.ResultDTO;
-import com.jdaalba.tusrecetasservice.service.RecipeService;
 import com.jdaalba.tusrecetasservice.entity.Recipe;
 import com.jdaalba.tusrecetasservice.repository.RecipeRepository;
+import com.jdaalba.tusrecetasservice.service.RecipeService;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +36,28 @@ public class RecipeRoutingFunctionConfig {
   private final RecipeRepository recipeRepository;
 
   @Bean
-  public RouterFunction<ServerResponse> getRecipes() {
+  public RouterFunction<ServerResponse> handleRecipesById() {
+    return route(
+        path("/recipes/{id}"),
+        request -> {
+          final Supplier<Optional<Recipe>> query = () -> recipeRepository.findById(Long.parseLong(request.pathVariable("id")));
+          final Supplier<ServerResponse> notFound = () -> ServerResponse.notFound().build();
+          return switch (requireNonNull(request.method())) {
+            case GET -> query.get().map(ok()::body).orElseGet(notFound);
+            case DELETE -> query.get()
+                .map(r -> {
+                  recipeRepository.delete(r);
+                  return ok().build();
+                })
+                .orElseGet(notFound);
+            default -> ServerResponse.badRequest().build();
+          };
+        }
+    );
+  }
+
+  @Bean
+  public RouterFunction<ServerResponse> handleRecipes() {
     return route(
         path("/recipes"),
         request ->

@@ -1,7 +1,6 @@
 package com.jdaalba.tusrecetasservice.entity;
 
 import java.util.List;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,13 +18,11 @@ public class Ingredient {
 
   @Id
   @GeneratedValue
-  private UUID id;
+  private Long id;
+
   private String name;
-  @Relationship()
+
+  @Relationship
   @Transient
   private List<Recipe> recipes;
-
-  public Ingredient(String name) {
-    this.name = name;
-  }
 }
