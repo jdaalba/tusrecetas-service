@@ -29,7 +29,7 @@ import org.springframework.web.servlet.function.ServerResponse;
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
-@CrossOrigin(originPatterns = "*")
+@CrossOrigin(origins = "*")
 public class IngredientRoutingFunctionConfig {
 
   private final IngredientRepository repository;
@@ -68,10 +68,11 @@ public class IngredientRoutingFunctionConfig {
           log.info("Incoming request [{}]", request);
           return switch (requireNonNull(request.method())) {
             case GET -> ok()
+                .header("Access-Control-Allow-Origin", "*")
                 .body(
                     new ResultDTO<>(
                         request.param("like")
-                            .map(i -> repository.findAll())
+                            .map(repository::findAllByNameLike)
                             .orElseGet(repository::findAll)
                     )
                 );
@@ -85,7 +86,7 @@ public class IngredientRoutingFunctionConfig {
 
   public ServerResponse saveNewIngredient(ServerRequest request)
       throws ServletException, IOException {
-    final var ingredient  = request.body(Ingredient.class);
+    final var ingredient = request.body(Ingredient.class);
     log.info("Incoming request [{}]", request);
     repository.findByName(ingredient.getName())
         .ifPresent(ing -> {
